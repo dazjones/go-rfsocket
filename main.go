@@ -1,11 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"log"
 	"os/exec"
-	"bufio"
-	"strings"
 )
 
 func main() {
@@ -24,32 +23,24 @@ func main() {
 
 	receiver := make(chan string)
 
-	go func () {
+	go func() {
 		cmd := exec.Command(*sender_bin)
 		out, _ := cmd.StdoutPipe()
 
 		cmd.Start()
 
-		for {
-			r := bufio.NewReader(out)
-			line, err := r.ReadBytes('\n')
+		scanner := bufio.NewScanner(out)
 
-			if err != nil {
-				log.Fatalf("Error reading bytes")
-			}
-
-			s := string(line)
-			strings.Replace(s, "\n", "", -1)
-
-			receiver <- s
+		for scanner.Scan() {
+			text := scanner.Text()
+			receiver <- text
 		}
-
 	}()
 
 	log.Println("Ready")
 
 	for {
-		received_code := <- receiver
+		received_code := <-receiver
 		log.Print(received_code)
 	}
 
