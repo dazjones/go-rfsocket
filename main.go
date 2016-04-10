@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/dazjones/go-rfsocket/conf"
 	"github.com/dazjones/go-rfsocket/models"
+	"github.com/dazjones/go-rfsocket/mq"
 	"log"
 )
 
@@ -18,7 +19,19 @@ func main() {
 		log.Fatalf("Flag sender is empty")
 	}
 
+	log.Println("Initialising config");
 	conf.Init(&config)
+
+	log.Println("Initialising models");
 	models.Init(&config)
+
+	log.Println("Initialising MQTT");
+	mq.Init(&config)
+
+	log.Println("Ready");
+
+	for {
+
+	}
 
 }
