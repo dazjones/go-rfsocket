@@ -1,15 +1,16 @@
 package main
 
 import (
-	"bufio"
 	"flag"
+	"github.com/dazjones/go-rfsocket/conf"
+	"github.com/dazjones/go-rfsocket/models"
 	"log"
-	"os/exec"
 )
 
+var config conf.Configuration
+
 func main() {
-	sender_bin := flag.String("sender", "", "Path to sender")
-	receiver_bin := flag.String("receiver", "", "Path to receiver")
+	sender_bin := flag.String("sender", "/usr/bin/rfsender", "Path to RF sender binary")
 
 	flag.Parse()
 
@@ -17,31 +18,7 @@ func main() {
 		log.Fatalf("Flag sender is empty")
 	}
 
-	if *receiver_bin == "" {
-		//log.Fatalf("Flag receiver is empty")
-	}
-
-	receiver := make(chan string)
-
-	go func() {
-		cmd := exec.Command(*sender_bin)
-		out, _ := cmd.StdoutPipe()
-
-		cmd.Start()
-
-		scanner := bufio.NewScanner(out)
-
-		for scanner.Scan() {
-			text := scanner.Text()
-			receiver <- text
-		}
-	}()
-
-	log.Println("Ready")
-
-	for {
-		received_code := <-receiver
-		log.Print(received_code)
-	}
+	conf.Init(&config)
+	models.Init(&config)
 
 }
